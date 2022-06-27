@@ -5,6 +5,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 import javax.imageio.ImageIO;
 
@@ -23,6 +25,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import model.User;
 
 public class SignUpController {
 
@@ -52,6 +55,8 @@ public class SignUpController {
 
 	private Stage window;
 	private boolean isDefault = true;
+	private File selectedFile;
+	private byte[] profileByte;
 
 	@FXML
 	void backToLogin(ActionEvent event) throws IOException {
@@ -68,7 +73,7 @@ public class SignUpController {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters()
 				.addAll(new FileChooser.ExtensionFilter("Image Files (png/jpg)", "*.png", "*.jpg"));
-		File selectedFile = fileChooser.showOpenDialog(window);
+		selectedFile = fileChooser.showOpenDialog(window);
 
 		try {
 			FileInputStream inputFile = new FileInputStream(selectedFile);
@@ -88,21 +93,50 @@ public class SignUpController {
 
 	@FXML
 	void signUpUser(ActionEvent event) {
-		if (!nameInput.getText().isBlank() || !nameInput.getText().isEmpty()) {
-			if (!usernameInput.getText().isBlank() || !usernameInput.getText().isEmpty()) {
-				if (!passwordInput.getText().isBlank() || !passwordInput.getText().isEmpty()) {
-					
-				} else {
-					errorLabel.setText("Empty or invalid password");
-					errorLabel.setTextFill(Color.RED);
-				}
-			} else {
-				errorLabel.setText("Empty or invalid username");
-				errorLabel.setTextFill(Color.RED);
-			}
-		} else {
+//		if (!nameInput.getText().isBlank() || !nameInput.getText().isEmpty()) {
+//			if (!usernameInput.getText().isBlank() || !usernameInput.getText().isEmpty()) {
+//				if (!passwordInput.getText().isBlank() || !passwordInput.getText().isEmpty()) {
+//					
+//				} else {
+//					errorLabel.setText("Empty or invalid password");
+//					errorLabel.setTextFill(Color.RED);
+//				}
+//			} else {
+//				errorLabel.setText("Empty or invalid username");
+//				errorLabel.setTextFill(Color.RED);
+//			}
+//		} else {
+//			errorLabel.setText("Empty or invalid name");
+//			errorLabel.setTextFill(Color.RED);
+//		}
+
+		if (nameInput.getText().isBlank() || !nameInput.getText().isEmpty()) {
 			errorLabel.setText("Empty or invalid name");
 			errorLabel.setTextFill(Color.RED);
+		} else if (usernameInput.getText().isBlank() || !usernameInput.getText().isEmpty()) {
+			errorLabel.setText("Empty or invalid username");
+			errorLabel.setTextFill(Color.RED);
+		} else if (passwordInput.getText().isBlank() || passwordInput.getText().isEmpty()) {
+			errorLabel.setText("Empty or invalid password");
+			errorLabel.setTextFill(Color.RED);
+		} else {
+			try {
+				if (isDefault == true) {
+					InputStream defaultImage = getClass().getResourceAsStream("/resource/default-profile-picture.png");
+					profileByte = defaultImage.readAllBytes();
+				} else {
+					profileByte = Files.readAllBytes(selectedFile.toPath());
+				}
+			} catch (IOException ioe) {
+				errorLabel.setText(ioe.getMessage());
+				errorLabel.setTextFill(Color.RED);
+			}
+			User user;
+			try {
+				
+			}catch() {
+				
+			}
 		}
 	}
 
