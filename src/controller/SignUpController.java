@@ -6,10 +6,14 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 
 import javax.imageio.ImageIO;
 
+import application.MainSystem;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -25,6 +29,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import model.Model;
 import model.User;
 
 public class SignUpController {
@@ -57,6 +62,14 @@ public class SignUpController {
 	private boolean isDefault = true;
 	private File selectedFile;
 	private byte[] profileByte;
+	private User user;
+	private Model model;
+	private MainSystem system;
+
+	private void init() {
+		model = new Model();
+		system = new MainSystem();
+	}
 
 	@FXML
 	void backToLogin(ActionEvent event) throws IOException {
@@ -92,24 +105,7 @@ public class SignUpController {
 	}
 
 	@FXML
-	void signUpUser(ActionEvent event) {
-//		if (!nameInput.getText().isBlank() || !nameInput.getText().isEmpty()) {
-//			if (!usernameInput.getText().isBlank() || !usernameInput.getText().isEmpty()) {
-//				if (!passwordInput.getText().isBlank() || !passwordInput.getText().isEmpty()) {
-//					
-//				} else {
-//					errorLabel.setText("Empty or invalid password");
-//					errorLabel.setTextFill(Color.RED);
-//				}
-//			} else {
-//				errorLabel.setText("Empty or invalid username");
-//				errorLabel.setTextFill(Color.RED);
-//			}
-//		} else {
-//			errorLabel.setText("Empty or invalid name");
-//			errorLabel.setTextFill(Color.RED);
-//		}
-
+	void signUpUser(ActionEvent event) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 		if (nameInput.getText().isBlank() || !nameInput.getText().isEmpty()) {
 			errorLabel.setText("Empty or invalid name");
 			errorLabel.setTextFill(Color.RED);
@@ -131,63 +127,22 @@ public class SignUpController {
 				errorLabel.setText(ioe.getMessage());
 				errorLabel.setTextFill(Color.RED);
 			}
-			User user;
 			try {
-				
-			}catch() {
-				
+				init();
+				if (model.getUserDao().searchUserExist(usernameInput.getText()) == true) {
+					errorLabel.setText("User already exists.");
+					errorLabel.setTextFill(Color.RED);
+				} else {
+					user = model.getUserDao().createUser(nameInput.getText(), usernameInput.getText(),
+							system.hashPassword(passwordInput.getText()), profileByte);
+					errorLabel.setText("Created user " + usernameInput.getText());
+					errorLabel.setTextFill(Color.GREEN);
+				}
+			} catch (SQLException sqle) {
+				errorLabel.setText(sqle.getMessage());
+				errorLabel.setTextFill(Color.RED);
 			}
 		}
 	}
-
-//	if(usernameInput.getText().isBlank()||usernameInput.getText().isEmpty())
-//
-//	{
-//		userLabel.setText("Empty/Invalid username");
-//		userLabel.setFill(Color.RED);
-//	}else if(firstNameInput.getText().isBlank()||firstNameInput.getText().isEmpty())
-//	{
-//		userLabel.setText("Empty/Invalid first name");
-//		userLabel.setFill(Color.RED);
-//	}else if(lastNameInput.getText().isBlank()||lastNameInput.getText().isEmpty())
-//	{
-//		userLabel.setText("Empty/Invalid last name");
-//		userLabel.setFill(Color.RED);
-//	}else if(passwordInput.getText().isBlank()||passwordInput.getText().isEmpty())
-//	{
-//		userLabel.setText("Empty/Invalid password");
-//		userLabel.setFill(Color.RED);
-//	}else
-//	{
-//		try {
-//			if (isDefault == false) {
-//				profileByte = Files.readAllBytes(selectedFile.toPath());
-//			} else {
-//				InputStream defaultImage = getClass().getResourceAsStream("/resources/default-profile-picture.png");
-//				profileByte = defaultImage.readAllBytes();
-//			}
-//		} catch (IOException ioe) {
-//			userLabel.setText(ioe.getMessage());
-//			userLabel.setFill(Color.RED);
-//		}
-//		User user;
-//		try {
-//			if (model.getUserDao().searchUserExist(usernameInput.getText()) == true) {
-//				userLabel.setText("User already exists.");
-//				userLabel.setFill(Color.RED);
-//			} else {
-//				user = model.getUserDao().createUser(usernameInput.getText(), hashPassword(passwordInput.getText()),
-//						firstNameInput.getText(), lastNameInput.getText(), profileByte);
-//				userLabel.setText("Created user " + usernameInput.getText());
-//				userLabel.setFill(Color.GREEN);
-//			}
-//		} catch (SQLException sqle) {
-//			userLabel.setText(sqle.getMessage());
-//			userLabel.setFill(Color.RED);
-//		} catch (Exception e) {
-//			userLabel.setText(e.getMessage());
-//			userLabel.setFill(Color.RED);
-//		}
-//	}
 
 }
